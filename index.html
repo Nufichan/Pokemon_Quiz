@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guess the Pokémon</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* Body and gradient background */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #ff4e50, #fc913a, #667eea, #764ba2);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Pokeballs */
+        .pokeball {
+            position: absolute;
+            width: 60px;
+            opacity: 0.15;
+            animation: float 15s infinite linear;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        /* Keeps main content above Pokeballs */
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo */
+        .logo img {
+            width: 280px;
+            margin-bottom: 10px;
+        }
+
+        /* Heading */
+        h1 {
+            color: white;
+            font-size: 42px;
+            margin-bottom: 40px;
+            text-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+        }
+
+        /* Menu links */
+        .menu a {
+            display: block;
+            width: 260px;
+            margin: 15px auto;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: 0.3s ease;
+        }
+
+        .menu a:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="content">
+        <div class="logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg" alt="Pokemon Logo">
+        </div>
+
+        <h1>Guess the Pokémon</h1>
+
+        <div class="menu">
+            <a href="page1.html">Starter Pokemon</a>
+            <a href="page2.html">Legendary Pokemon</a>
+            <a href="page3.html">Mega Pokemon</a>
+            <a href="page4.html">Gigantamax Pokemon</a>
+            <a href="page5.html">About the creator</a>
+        </div>
+    </div>
+
+    <!-- Floating Pokeballs -->
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+         class="pokeball" style="left:10%; animation-duration: 18s;">
+
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+         class="pokeball" style="left:40%; animation-duration: 15s;">
+
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+         class="pokeball" style="left:70%; animation-duration: 20s;">
+
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+         class="pokeball" style="left:85%; animation-duration: 17s;">
+
+</body>
+</html>
