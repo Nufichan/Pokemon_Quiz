@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon Character Guess Board</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #222;
+      background: linear-gradient(-45deg, #ff4e50, #fc913a, #667eea, #764ba2);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin: 16px 0 8px;
+      color: white;
+      text-align: center;
+    }
+
+    .secret {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      text-align: center;
+      margin-bottom: 16px;
+      width: 260px;
+      cursor: pointer;
+      position: relative;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .secret img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+    }
+
+    .secret.hidden img,
+    .secret.hidden h2 {
+      display: none;
+    }
+
+    .secret.hidden::after {
+      content: "Hidden";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      color: white;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 16px;
+      max-width: 360px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 8px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .card.removed {
+      opacity: 0.35;
+    }
+
+    .card.removed::after {
+      content: "✖";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      color: red;
+      font-weight: bold;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 0 15px rgba(255,255,255,0.7),
+                  0 0 25px rgba(255,203,5,0.7);
+    }
+
+    button {
+      margin: 12px;
+      padding: 10px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #ffcb05;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    /* === Animated Gradient Background === */
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* === Floating Pokeballs === */
+    .pokeball {
+      position: fixed;
+      width: 70px;
+      opacity: 0.12;
+      animation: floatUp linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(110vh) rotate(0deg); }
+      100% { transform: translateY(-10vh) rotate(360deg); }
+    }
+
+    h1, .secret, .grid, button {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Secret Reveal Animation */
+    .secret.showing {
+      animation: revealEffect 0.6s ease forwards;
+    }
+    .secret.hiding {
+      animation: hideEffect 0.6s ease forwards;
+    }
+    @keyframes revealEffect {
+      0% { transform: scale(0.8) rotateY(90deg); opacity: 0; }
+      100% { transform: scale(1) rotateY(0deg); opacity: 1; }
+    }
+    @keyframes hideEffect {
+      0% { transform: scale(1) rotateY(0deg); opacity: 1; }
+      100% { transform: scale(0.8) rotateY(90deg); opacity: 0; }
+    }
+
+    /* Pokéball reveal */
+    .pokeball-reveal {
+      position: absolute;
+      width: 120px;
+      z-index: 10;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      animation: ballOpen 0.8s ease forwards;
+    }
+
+    @keyframes ballOpen {
+      0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+      40% { transform: translate(-50%, -50%) scale(1.2) rotate(180deg); opacity: 1; }
+      70% { transform: translate(-50%, -50%) scale(1) rotate(360deg); }
+      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    }
+
+    .flash {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 9;
+      animation: flashAnim 0.6s ease forwards;
+    }
+
+    @keyframes flashAnim {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    }
+
+    .secret.showing img {
+      animation: popOut 0.6s ease forwards;
+    }
+    @keyframes popOut {
+      0% { transform: scale(0.2); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .return-home {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .return-home a {
+      display: inline-block;
+      padding: 12px 25px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+    .return-home a:hover {
+      transform: translateY(-5px) scale(1.05);
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>Pokémon Character Guess Board</h1>
+
+  <div class="secret hidden" id="secretBox" onclick="toggleSecret()">
+    <img id="secretImg" src="" alt="Secret Character" />
+    <h2 id="secretName"></h2>
+  </div>
+
+  <button onclick="newRound()">New Round</button>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="return-home">
+    <a href="index.html">🏠 Back to Home</a>
+  </div>
+
+  <script>
+    const pokemon = [
+      ["Misty", "https://i.ibb.co.com/39bft5vB/300px-Misty-Journeys.png"],
+      ["Brock", "https://i.ibb.co.com/xtj8Dxrb/Brock-Journeys.png"],
+      ["Gary Oak", "https://i.ibb.co.com/tMhcwpFg/Gary-Oak-anime-Journeys.webp"],
+      ["Tracey", "https://i.ibb.co.com/9kN0nXBw/Tracey-Sketchit.png"],
+      ["May", "https://i.ibb.co.com/wZjtbHWf/May-AG.png"],
+      ["Max", "https://i.ibb.co.com/d4058wdp/Max-AG.png"],
+      ["Dawn", "https://i.ibb.co.com/vCcLm42v/Dawn-JN.png"],
+      ["Paul", "https://i.ibb.co.com/dJzfsRhy/Paul-DP-1.png"],
+      ["Iris", "https://i.ibb.co.com/x85jC12c/Black-2-White-2-Iris.png"],
+      ["Cilan", "https://i.ibb.co.com/QFvZ8MkL/300px-Black-White-Cilan.png"],
+      ["N", "https://i.ibb.co.com/Tqmqhr6p/400px-Black-2-White-2-N.png"],
+      ["Serena", "https://i.ibb.co.com/qYskkvD9/400px-XY-Serena.png"],
+      ["Clemont", "https://i.ibb.co.com/YTdy1V1s/460px-XY-Clemont.png"],
+      ["Bonnie", "https://i.ibb.co.com/tw7978jz/Bonnie-XY-1.png"],
+      ["Lillie", "https://i.ibb.co.com/B2wGK7tW/Lillie-SM.png"],
+      ["Mallow", "https://i.ibb.co.com/mCyBK1gH/350px-Mallow-SM.png"],
+      ["Lana", "https://i.ibb.co.com/nMCDcZLs/600px-Sun-Moon-Lana.png"],
+      ["Kiawe", "https://i.ibb.co.com/3y6wJ1G4/600px-Sun-Moon-Kiawe.png"],
+      ["Sophocles", "https://i.ibb.co.com/cdcCKZD/350px-Sophocles-SM.png"],
+      ["Alain", "https://i.ibb.co.com/n8KNHXLK/440px-Alain-JN.png"],
+      ["Gladion", "https://i.ibb.co.com/cXZDPVfJ/Gladion-SM.png"],
+      ["Goh", "https://i.ibb.co.com/Txkxsbbv/300px-Goh-JN.png"],
+      ["Chloe", "https://i.ibb.co.com/Kj4XpDvn/300px-Chloe-JN.png"],
+      ["Leon", "https://i.ibb.co.com/4gjpF1H8/500px-Leon-anime-JN.png"]
+    ];
+
+    const grid = document.getElementById("grid");
+    const secretImg = document.getElementById("secretImg");
+    const secretName = document.getElementById("secretName");
+    const secretBox = document.getElementById("secretBox");
+
+    function createGrid() {
+      grid.innerHTML = "";
+      pokemon.forEach((p) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<img src="${p[1]}"/><div>${p[0]}</div>`;
+        card.onclick = () => card.classList.toggle("removed");
+        grid.appendChild(card);
+      });
+    }
+
+    function newRound() {
+      const random = Math.floor(Math.random() * pokemon.length);
+      secretImg.src = pokemon[random][1];
+      secretName.textContent = pokemon[random][0];
+      secretBox.classList.add("hidden");
+      createGrid();
+    }
+
+    function toggleSecret() {
+      if (secretBox.classList.contains("hidden")) {
+        secretBox.classList.remove("hidden");
+
+        // Pokéball
+        const ball = document.createElement("img");
+        ball.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+        ball.className = "pokeball-reveal";
+        document.body.appendChild(ball);
+
+        // Flash effect
+        const flash = document.createElement("div");
+        flash.className = "flash";
+        document.body.appendChild(flash);
+
+        setTimeout(() => {
+          ball.remove();
+          flash.remove();
+        }, 800);
+
+        secretBox.classList.remove("showing", "hiding");
+        void secretBox.offsetWidth;
+        secretBox.classList.add("showing");
+
+      } else {
+        secretBox.classList.remove("showing");
+        secretBox.classList.add("hiding");
+
+        setTimeout(() => {
+          secretBox.classList.add("hidden");
+          secretBox.classList.remove("hiding");
+        }, 500);
+      }
+    }
+
+    newRound();
+  </script>
+
+  <!-- Floating Pokeballs -->
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+       class="pokeball" style="left:10%; animation-duration: 22s;">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+       class="pokeball" style="left:35%; animation-duration: 18s;">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+       class="pokeball" style="left:60%; animation-duration: 25s;">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+       class="pokeball" style="left:85%; animation-duration: 20s;">
+</body>
+</html>
