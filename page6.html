@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Character Guess Board</title>
+  <title>Companions/Rivals Pokémon Guess Board</title>
   <style>
     body {
       margin: 0;
@@ -245,7 +245,7 @@
   </style>
 </head>
 <body>
-  <h1>Pokémon Character Guess Board</h1>
+  <h1>Companions/Rivals Pokémon Guess Board</h1>
 
   <div class="secret hidden" id="secretBox" onclick="toggleSecret()">
     <img id="secretImg" src="" alt="Secret Character" />
@@ -342,7 +342,7 @@
 
         setTimeout(() => {
           secretBox.classList.add("hidden");
-          secretBox.classList.remove("hiding");
+              secretBox.classList.remove("hiding");
         }, 500);
       }
     }
